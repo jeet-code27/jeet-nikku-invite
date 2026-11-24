@@ -18,6 +18,14 @@
 :root {
   /* Stage width: every illustrated scene scales with this, like Framer does. */
   --W: clamp(720px, 100vw, 1280px);
+  /* What is actually visible of the stage (narrower than --W on phones). */
+  --V: min(var(--W), 100vw);
+  --bell: 1;
+}
+@media (max-width: 719px) {
+  :root {
+    --bell: 1.6; /* bigger bells on phones so they still read */
+  }
 }
 
 html,

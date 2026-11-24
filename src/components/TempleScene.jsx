@@ -7,6 +7,8 @@ import { couple, family, images, invocation } from '../config.js'
 // All sizes are fractions of the stage width W, so the scene scales as one picture.
 const W = (f) => `calc(var(--W) * ${f})`
 const u = (n) => `calc(var(--W) * ${n / 100})`
+// Fraction of the *visible* width, scaled up on phones (see --bell in index.css).
+const V = (f) => `calc(var(--V) * ${f} * var(--bell))`
 
 const TEMPLE_RATIO = 5187 / 1440 // height / width of temple.webp
 // The arch is taller than the invitation text, so we hide a band of its plain lower
@@ -46,7 +48,7 @@ function Bell({ b, entered }) {
   return (
     <motion.div
       className="absolute top-0 z-20"
-      style={{ left: b.left, right: b.right, width: W(b.w), height: W(b.h), transformOrigin: '50% 0%' }}
+      style={{ left: b.left, right: b.right, width: V(b.w), height: V(b.h), transformOrigin: '50% 0%' }}
       initial={{ y: '-100%' }}
       animate={entered ? { y: '0%' } : {}}
       transition={{ duration: 1.6, delay: 0.5 + b.delay * 0.5, ease }}
@@ -294,22 +296,6 @@ export default function TempleScene({ entered }) {
 
           {/* Names sit in front of the mountains but behind the temple (z 3 < 5). */}
           <Names entered={entered} progress={progress} sink={namesSink} />
-
-          {/* Floral arch at the top: starts zoomed in, pulls back like a camera. */}
-          <div className="absolute inset-x-0 top-0 z-20">
-            <motion.img
-              src={images.bellFrame}
-              alt=""
-              className="w-full"
-              style={{ transformOrigin: '50% 0%' }}
-              initial={{ scale: 2.3 }}
-              animate={entered ? { scale: 1 } : {}}
-              transition={{ duration: 2.4, ease: [0.65, 0, 0.35, 1] }}
-            />
-          </div>
-          {bells.map((b, i) => (
-            <Bell key={i} b={b} entered={entered} />
-          ))}
         </div>
 
         {/* ── Temple: rises out of the bottom edge as you scroll ── */}
@@ -329,6 +315,23 @@ export default function TempleScene({ entered }) {
             <ArchContent />
           </motion.div>
         </motion.div>
+      </div>
+
+      {/* Floral arch + bells are sized to the visible screen (not the wider stage),
+          so on phones the corners and bells stay on screen. */}
+      <div className="absolute top-0 left-1/2 z-20 -translate-x-1/2" style={{ width: 'var(--V)' }}>
+        <motion.img
+          src={images.bellFrame}
+          alt=""
+          className="w-full"
+          style={{ transformOrigin: '50% 0%' }}
+          initial={{ scale: 2.3 }}
+          animate={entered ? { scale: 1 } : {}}
+          transition={{ duration: 2.4, ease: [0.65, 0, 0.35, 1] }}
+        />
+        {bells.map((b, i) => (
+          <Bell key={i} b={b} entered={entered} />
+        ))}
       </div>
     </section>
   )
