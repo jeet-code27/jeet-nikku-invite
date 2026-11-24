@@ -41,11 +41,15 @@ export default function MeetCouple() {
             BRIDE &amp; GROOM
           </Reveal>
 
-          <Reveal className="relative mx-auto mt-[calc(var(--W)*0.03)]" style={{ width: 'min(calc(var(--W) * 0.72), calc(100vw - 20px))' }}>
+          <Reveal
+            className="relative mx-auto mt-[calc(var(--W)*0.03)] [container-type:inline-size]"
+            style={{ width: 'min(calc(var(--W) * 0.72), calc(100vw - 16px))' }}
+          >
             <img src={images.storyFrame} alt="" className="w-full" />
+            {/* Text scales with the frame (cqw) so it always stays between the two ornaments. */}
             <motion.p
-              className="absolute inset-x-[15%] top-[32%] bottom-[24%] flex items-center text-center font-serif text-ink"
-              style={{ fontSize: 'clamp(14px, calc(var(--W) * 0.022), 26px)', lineHeight: 1.5 }}
+              className="absolute inset-x-[12%] top-[31%] bottom-[26%] flex items-center justify-center text-center font-serif text-ink"
+              style={{ fontSize: 'clamp(12.5px, 3cqw, 24px)', lineHeight: 1.42 }}
             >
               {story}
             </motion.p>

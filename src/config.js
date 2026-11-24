@@ -79,6 +79,7 @@ export const images = {
   mountain: P + 'mountain.webp',
   clouds: P + 'clouds.webp',
   bellFrame: P + 'bell-frame.webp',
+  floralArch: P + 'floral-arch.webp', // phone version of the top arch
   bell1: P + 'bell-1.webp',
   bell2: P + 'bell-2.webp',
   temple: P + 'temple.webp',

@@ -7,6 +7,8 @@ import { couple, family, images, invocation } from '../config.js'
 // All sizes are fractions of the stage width W, so the scene scales as one picture.
 const W = (f) => `calc(var(--W) * ${f})`
 const u = (n) => `calc(var(--W) * ${n / 100})`
+// Same, but never smaller than `min` px (keeps small text readable on phones).
+const uf = (n, min) => `max(${u(n)}, ${min}px)`
 // Fraction of the *visible* width, scaled up on phones (see --bell in index.css).
 const V = (f) => `calc(var(--V) * ${f} * var(--bell))`
 
@@ -16,7 +18,6 @@ const TEMPLE_RATIO = 5187 / 1440 // height / width of temple.webp
 const CUT_FROM = 0.85
 const CUT_TO = 0.975
 const TEMPLE_OVERLAP = 0.36 // how far (in W) the temple tucks up into the sky block
-const NAMES_TOP = 0.1 // names' top inside the sky block, in W
 const ease = [0.22, 1, 0.36, 1]
 
 // Pixel measurements the scroll animation needs (mirrors the CSS --W clamp).
@@ -24,9 +25,13 @@ function useViewport() {
   const read = () => {
     const vw = window.innerWidth
     const vh = window.innerHeight
-    const w = Math.min(Math.max(vw, 720), 1280)
-    const skyH = Math.max(vh, w * 0.66)
-    return { vh, w, skyH, templeTop: skyH - w * TEMPLE_OVERLAP }
+    const w = Math.min(Math.max(vw, 540), 1280) // keep in sync with --W in index.css
+    // Phones: the whole temple is already up on the first screen (like the reference),
+    // with its spire at ~40% of the screen height. Larger screens: it rises on scroll.
+    const mobile = vw < 720
+    const skyH = mobile ? vh * 0.4 + w * TEMPLE_OVERLAP : Math.max(vh, w * 0.66)
+    const namesTop = mobile ? w * 0.17 : w * 0.1
+    return { vh, w, mobile, skyH, namesTop, templeTop: skyH - w * TEMPLE_OVERLAP }
   }
   const [v, setV] = useState(read)
   useEffect(() => {
@@ -84,12 +89,12 @@ function NameLine({ children, entered, delay, rotate, sink, progress, className,
   )
 }
 
-function Names({ entered, progress, sink }) {
+function Names({ entered, progress, sink, top }) {
   const color = 'rgba(171, 86, 38, 0.78)'
   return (
     <div
       className="pointer-events-none absolute inset-x-0 z-[3] flex flex-col items-center text-center"
-      style={{ top: W(NAMES_TOP), color }}
+      style={{ top, color }}
     >
       <NameLine
         entered={entered}
@@ -162,19 +167,19 @@ function ArchContent() {
       }}
     >
       <div className="flex flex-col items-center" style={{ gap: u(1.6) }}>
-        <Reveal className="font-deva text-terracotta" style={{ fontSize: u(3) }}>
+        <Reveal className="font-deva text-terracotta" style={{ fontSize: uf(3, 16) }}>
           {invocation.title}
         </Reveal>
         <Reveal delay={0.1}>
           <motion.img
             src={images.ganesh}
             alt="Shri Ganesh"
-            style={{ width: u(9) }}
+            style={{ width: uf(9, 52) }}
             animate={{ y: [0, -6, 0] }}
             transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
           />
         </Reveal>
-        <Reveal delay={0.2} className="font-deva leading-relaxed text-terracotta" style={{ fontSize: u(2.6) }}>
+        <Reveal delay={0.2} className="font-deva leading-relaxed text-terracotta" style={{ fontSize: uf(2.6, 15) }}>
           {invocation.shloka.map((l) => (
             <p key={l}>{l}</p>
           ))}
@@ -182,17 +187,17 @@ function ArchContent() {
       </div>
 
       <div className="flex flex-col items-center" style={{ gap: u(1.2) }}>
-        <Reveal className="font-serif font-semibold italic text-maroon" style={{ fontSize: u(3) }}>
+        <Reveal className="font-serif font-semibold italic text-maroon" style={{ fontSize: uf(3, 17) }}>
           {family.blessingsHeading}
         </Reveal>
-        <Reveal delay={0.1} className="font-serif text-ink" style={{ fontSize: u(2.3) }}>
+        <Reveal delay={0.1} className="font-serif text-ink" style={{ fontSize: uf(2.3, 13.5) }}>
           {family.blessings.map((l) => (
             <p key={l}>{l}</p>
           ))}
         </Reveal>
       </div>
 
-      <Reveal className="font-serif whitespace-pre-line text-ink" style={{ fontSize: u(2.5), lineHeight: 1.45 }}>
+      <Reveal className="font-serif whitespace-pre-line text-ink" style={{ fontSize: uf(2.5, 14.5), lineHeight: 1.45 }}>
         {family.inviteText}
       </Reveal>
 
@@ -200,19 +205,19 @@ function ArchContent() {
         <Reveal y={60} className="font-names text-terracotta" style={{ fontSize: `min(${u(12)}, 15vw)`, lineHeight: 1 }}>
           {couple.groom}
         </Reveal>
-        <Reveal delay={0.1} className="font-serif text-ink" style={{ fontSize: u(2.2) }}>
+        <Reveal delay={0.1} className="font-serif text-ink" style={{ fontSize: uf(2.2, 13) }}>
           {family.groomParents.map((l) => (
             <p key={l}>{l}</p>
           ))}
         </Reveal>
-        <Reveal className="font-script text-terracotta" style={{ fontSize: u(7), lineHeight: 1 }}>
+        <Reveal className="font-script text-terracotta" style={{ fontSize: uf(7, 38), lineHeight: 1 }}>
           with
         </Reveal>
         <Reveal y={60} className="font-names text-terracotta" style={{ fontSize: `min(${u(12)}, 15vw)`, lineHeight: 1 }}>
           {couple.bride}
         </Reveal>
         {family.brideParents.length > 0 && (
-          <Reveal delay={0.1} className="font-serif text-ink" style={{ fontSize: u(2.2) }}>
+          <Reveal delay={0.1} className="font-serif text-ink" style={{ fontSize: uf(2.2, 13) }}>
             {family.brideParents.map((l) => (
               <p key={l}>{l}</p>
             ))}
@@ -224,7 +229,7 @@ function ArchContent() {
 }
 
 export default function TempleScene({ entered }) {
-  const { vh, w, templeTop } = useViewport()
+  const { vh, w, mobile, skyH, namesTop, templeTop } = useViewport()
   const { scrollY } = useScroll()
 
   // The opening scroll: over this many pixels the temple rises into place
@@ -233,21 +238,23 @@ export default function TempleScene({ entered }) {
   const progress = useTransform(scrollY, [0, range], [0, 1], { clamp: true })
 
   // At the top of the page only the spire + flag peek above the bottom edge.
-  const templeStart = Math.max(0, vh - w * 0.11 - templeTop)
+  // (On phones everything starts in place; only the names sink on scroll.)
+  const rise = mobile ? 0 : 1
+  const templeStart = rise * Math.max(0, vh - w * 0.11 - templeTop)
   const templeY = useTransform(progress, [0, 1], [templeStart, 0])
-  const mountainY = useTransform(progress, [0, 1], [w * 0.3, 0])
-  const cloudY = useTransform(progress, [0, 1], [w * 0.42, 0])
-  const sunY = useTransform(progress, [0, 1], [w * 0.25, 0])
+  const mountainY = useTransform(progress, [0, 1], [rise * w * 0.3, 0])
+  const cloudY = useTransform(progress, [0, 1], [rise * w * 0.42, 0])
+  const sunY = useTransform(progress, [0, 1], [rise * w * 0.25, 0])
   const skyY = useTransform(scrollY, [0, 1200], [0, 420])
 
   // How far the names drop so they end up hidden behind the temple building.
-  const namesSink = templeTop - w * NAMES_TOP + w * 0.22
+  const namesSink = templeTop - namesTop + w * 0.22
 
   return (
     <section className="relative overflow-hidden bg-[linear-gradient(#ecd9cd,#f3e0c9_40%,#ffefe2)]">
       <div className="stage">
         {/* ── Sky ─────────────────────────────── */}
-        <div className="relative" style={{ height: `max(100svh, ${W(0.66)})` }}>
+        <div className="relative" style={{ height: skyH }}>
           <motion.img
             src={images.sky}
             alt=""
@@ -295,7 +302,7 @@ export default function TempleScene({ entered }) {
           )}
 
           {/* Names sit in front of the mountains but behind the temple (z 3 < 5). */}
-          <Names entered={entered} progress={progress} sink={namesSink} />
+          <Names entered={entered} progress={progress} sink={namesSink} top={namesTop} />
         </div>
 
         {/* ── Temple: rises out of the bottom edge as you scroll ── */}
@@ -320,15 +327,16 @@ export default function TempleScene({ entered }) {
       {/* Floral arch + bells are sized to the visible screen (not the wider stage),
           so on phones the corners and bells stay on screen. */}
       <div className="absolute top-0 left-1/2 z-20 -translate-x-1/2" style={{ width: 'var(--V)' }}>
-        <motion.img
-          src={images.bellFrame}
-          alt=""
-          className="w-full"
+        <motion.div
           style={{ transformOrigin: '50% 0%' }}
           initial={{ scale: 2.3 }}
           animate={entered ? { scale: 1 } : {}}
           transition={{ duration: 2.4, ease: [0.65, 0, 0.35, 1] }}
-        />
+        >
+          {/* Wide screens: low arch with corner flowers. Phones: taller arch with flowers down the sides. */}
+          <img src={images.bellFrame} alt="" className="hidden w-full min-[720px]:block" />
+          <img src={images.floralArch} alt="" className="w-full min-[720px]:hidden" />
+        </motion.div>
         {bells.map((b, i) => (
           <Bell key={i} b={b} entered={entered} />
         ))}

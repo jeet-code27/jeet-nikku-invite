@@ -17,7 +17,7 @@
 
 :root {
   /* Stage width: every illustrated scene scales with this, like Framer does. */
-  --W: clamp(720px, 100vw, 1280px);
+  --W: clamp(540px, 100vw, 1280px);
   /* What is actually visible of the stage (narrower than --W on phones). */
   --V: min(var(--W), 100vw);
   --bell: 1;
