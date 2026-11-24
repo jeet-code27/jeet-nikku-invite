@@ -1,0 +1,9 @@
+node_modules
+dist
+.claude/settings.local.json
+
+# Reference-site photos of another couple — not used by the site, keep them out of the repo
+public/placeholder/hero-reference.webp
+public/placeholder/hero-couple.webp
+public/placeholder/couple-photo.webp
+public/placeholder/photo-*.webp

@@ -1,0 +1,53 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
+  --font-display: 'Yeseva One', Georgia, serif;
+  --font-names: 'Fraunces', Georgia, serif;
+  --font-script: 'Carattere', cursive;
+  --font-deva: 'Tiro Devanagari Hindi', serif;
+
+  --color-cream: #ffefe2;
+  --color-sand: #e5c08a;
+  --color-maroon: #6b1d0e;
+  --color-terracotta: #b5562a;
+  --color-gold: #c6913f;
+  --color-ink: #3d2314;
+}
+
+:root {
+  /* Stage width: every illustrated scene scales with this, like Framer does. */
+  --W: clamp(720px, 100vw, 1280px);
+}
+
+html,
+body {
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-serif);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* A centered box as wide as the stage, even when the screen is narrower. */
+.stage {
+  position: relative;
+  width: var(--W);
+  left: 50%;
+  margin-left: calc(var(--W) / -2);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
